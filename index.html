@@ -1,1158 +1,161 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <title>Prime Chat</title>
-
-  <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    :root {
-      --bg: #070b14;
-      --panel: #0d1422;
-      --panel2: #111a2b;
-      --border: rgba(255,255,255,.08);
-      --text: #ffffff;
-      --muted: #8994a8;
-      --blue: #3b82f6;
-      --purple: #7c3aed;
-      --green: #22c55e;
-    }
-
-    body {
-      font-family: Tahoma, Arial, sans-serif;
-      background:
-        radial-gradient(
-          circle at 90% 0%,
-          #1b315d 0%,
-          transparent 30%
-        ),
-        radial-gradient(
-          circle at 0% 100%,
-          #22134b 0%,
-          transparent 30%
-        ),
-        var(--bg);
-
-      color: var(--text);
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    button,
-    input {
-      font-family: inherit;
-    }
-
-    .app {
-      height: 100vh;
-      padding: 16px;
-      display: flex;
-      gap: 15px;
-    }
-
-    /* SIDEBAR */
-
-    .sidebar {
-      width: 330px;
-      min-width: 330px;
-      height: 100%;
-
-      background: rgba(13,20,34,.9);
-
-      border: 1px solid var(--border);
-      border-radius: 24px;
-
-      display: flex;
-      flex-direction: column;
-
-      overflow: hidden;
-
-      backdrop-filter: blur(20px);
-    }
-
-    .logoArea {
-      padding: 20px;
-
-      border-bottom: 1px solid var(--border);
-
-      display: flex;
-      align-items: center;
-
-      gap: 12px;
-    }
-
-    .logo {
-      width: 50px;
-      height: 50px;
-
-      border-radius: 16px;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      font-size: 24px;
-      font-weight: bold;
-
-      background:
-        linear-gradient(
-          135deg,
-          var(--blue),
-          var(--purple)
-        );
-
-      box-shadow:
-        0 10px 30px rgba(59,130,246,.3);
-    }
-
-    .logoText h1 {
-      font-size: 20px;
-    }
-
-    .logoText p {
-      color: var(--muted);
-      font-size: 11px;
-      margin-top: 4px;
-    }
-
-    .search {
-      padding: 15px;
-    }
-
-    .searchBox {
-      height: 45px;
-
-      border-radius: 14px;
-
-      background: #111827;
-
-      border: 1px solid var(--border);
-
-      display: flex;
-      align-items: center;
-
-      padding: 0 13px;
-
-      gap: 9px;
-    }
-
-    .searchBox span {
-      color: #718096;
-    }
-
-    .searchBox input {
-      width: 100%;
-
-      background: none;
-      border: none;
-      outline: none;
-
-      color: white;
-
-      font-size: 13px;
-    }
-
-    .searchBox input::placeholder {
-      color: #667085;
-    }
-
-    .title {
-      color: #68758b;
-      font-size: 11px;
-      padding: 0 18px 8px;
-    }
-
-    .users {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0 9px 10px;
-    }
-
-    .user {
-      padding: 11px;
-
-      display: flex;
-      align-items: center;
-
-      gap: 11px;
-
-      border-radius: 15px;
-
-      cursor: pointer;
-
-      transition: .2s;
-
-      margin-bottom: 3px;
-    }
-
-    .user:hover {
-      background: rgba(255,255,255,.04);
-    }
-
-    .user.active {
-      background:
-        linear-gradient(
-          135deg,
-          rgba(59,130,246,.2),
-          rgba(124,58,237,.12)
-        );
-    }
-
-    .avatar {
-      width: 47px;
-      height: 47px;
-      min-width: 47px;
-
-      border-radius: 50%;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      background:
-        linear-gradient(
-          135deg,
-          #2563eb,
-          #7c3aed
-        );
-
-      font-weight: bold;
-
-      position: relative;
-    }
-
-    .status {
-      position: absolute;
-
-      width: 11px;
-      height: 11px;
-
-      background: var(--green);
-
-      border: 2px solid #111827;
-
-      border-radius: 50%;
-
-      bottom: 0;
-      left: 0;
-    }
-
-    .userInfo {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .userName {
-      font-size: 13px;
-      font-weight: bold;
-    }
-
-    .last {
-      color: #69768b;
-
-      font-size: 11px;
-
-      margin-top: 5px;
-
-      white-space: nowrap;
-
-      overflow: hidden;
-
-      text-overflow: ellipsis;
-    }
-
-    .time {
-      color: #68758b;
-      font-size: 9px;
-    }
-
-    /* CHAT */
-
-    .chat {
-      flex: 1;
-
-      min-width: 0;
-
-      height: 100%;
-
-      background: rgba(9,14,25,.9);
-
-      border: 1px solid var(--border);
-
-      border-radius: 24px;
-
-      display: flex;
-
-      flex-direction: column;
-
-      overflow: hidden;
-
-      backdrop-filter: blur(20px);
-    }
-
-    .chatHeader {
-      min-height: 76px;
-
-      padding: 0 20px;
-
-      display: flex;
-
-      align-items: center;
-
-      gap: 12px;
-
-      border-bottom: 1px solid var(--border);
-    }
-
-    .headerAvatar {
-      width: 45px;
-      height: 45px;
-
-      border-radius: 50%;
-
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      background:
-        linear-gradient(
-          135deg,
-          #2563eb,
-          #7c3aed
-        );
-
-      font-weight: bold;
-    }
-
-    .chatUser {
-      flex: 1;
-    }
-
-    .chatUser strong {
-      font-size: 14px;
-    }
-
-    .chatUser small {
-      display: block;
-
-      color: var(--green);
-
-      font-size: 10px;
-
-      margin-top: 5px;
-    }
-
-    .actions {
-      display: flex;
-      gap: 7px;
-    }
-
-    .icon {
-      width: 40px;
-      height: 40px;
-
-      border: none;
-
-      border-radius: 12px;
-
-      color: white;
-
-      background: #121b2c;
-
-      cursor: pointer;
-
-      font-size: 16px;
-
-      transition: .2s;
-    }
-
-    .icon:hover {
-      background: #1d2a42;
-
-      transform: translateY(-1px);
-    }
-
-    /* MESSAGES */
-
-    .messages {
-      flex: 1;
-
-      overflow-y: auto;
-
-      padding: 25px;
-
-      display: flex;
-
-      flex-direction: column;
-
-      gap: 12px;
-    }
-
-    .welcome {
-      margin: auto;
-
-      text-align: center;
-
-      color: #6f7c91;
-    }
-
-    .welcomeIcon {
-      width: 80px;
-      height: 80px;
-
-      margin: auto auto 15px;
-
-      border-radius: 25px;
-
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      font-size: 35px;
-
-      background: rgba(255,255,255,.04);
-    }
-
-    .welcome h2 {
-      color: white;
-
-      font-size: 19px;
-
-      margin-bottom: 8px;
-    }
-
-    .welcome p {
-      font-size: 12px;
-    }
-
-    .message {
-      max-width: 70%;
-
-      display: flex;
-
-      flex-direction: column;
-    }
-
-    .message.me {
-      align-self: flex-start;
-      align-items: flex-start;
-    }
-
-    .message.other {
-      align-self: flex-end;
-      align-items: flex-end;
-    }
-
-    .bubble {
-      padding: 11px 15px;
-
-      border-radius: 18px;
-
-      font-size: 13px;
-
-      line-height: 1.7;
-
-      word-break: break-word;
-    }
-
-    .me .bubble {
-      background:
-        linear-gradient(
-          135deg,
-          #2563eb,
-          #4f46e5
-        );
-
-      border-bottom-left-radius: 5px;
-    }
-
-    .other .bubble {
-      background: #151e30;
-
-      border: 1px solid var(--border);
-
-      border-bottom-right-radius: 5px;
-    }
-
-    .msgTime {
-      color: #657186;
-
-      font-size: 9px;
-
-      margin-top: 4px;
-
-      padding: 0 5px;
-    }
-
-    /* INPUT */
-
-    .inputArea {
-      padding: 14px 17px;
-
-      border-top: 1px solid var(--border);
-
-      background: rgba(8,12,22,.7);
-    }
-
-    .input {
-      min-height: 56px;
-
-      background: #111827;
-
-      border: 1px solid var(--border);
-
-      border-radius: 17px;
-
-      display: flex;
-
-      align-items: center;
-
-      gap: 5px;
-
-      padding: 6px;
-    }
-
-    .input input {
-      flex: 1;
-
-      border: none;
-
-      outline: none;
-
-      background: none;
-
-      color: white;
-
-      padding: 10px;
-
-      font-size: 13px;
-    }
-
-    .input input::placeholder {
-      color: #657186;
-    }
-
-    .emoji {
-      width: 42px;
-      height: 42px;
-
-      border: none;
-
-      background: none;
-
-      color: #8793a7;
-
-      cursor: pointer;
-
-      font-size: 19px;
-    }
-
-    .send {
-      width: 44px;
-      height: 44px;
-
-      border: none;
-
-      border-radius: 13px;
-
-      background:
-        linear-gradient(
-          135deg,
-          #2563eb,
-          #7c3aed
-        );
-
-      color: white;
-
-      font-size: 18px;
-
-      cursor: pointer;
-
-      transition: .2s;
-    }
-
-    .send:hover {
-      transform: scale(1.05);
-    }
-
-    /* MOBILE */
-
-    .mobileMenu {
-      display: none;
-    }
-
-    @media(max-width:800px) {
-
-      .app {
-        padding: 0;
-      }
-
-      .sidebar {
-        position: fixed;
-
-        z-index: 50;
-
-        top: 0;
-
-        right: -350px;
-
-        height: 100vh;
-
-        border-radius: 0;
-
-        transition: .3s;
-      }
-
-      .sidebar.show {
-        right: 0;
-      }
-
-      .chat {
-        border-radius: 0;
-      }
-
-      .mobileMenu {
-        display: block;
-      }
-
-      .message {
-        max-width: 85%;
-      }
-    }
-
-    ::-webkit-scrollbar {
-      width: 5px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #29354a;
-      border-radius: 10px;
-    }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Prime Chat</title>
+<style>
+:root{--bg:#07111f;--panel:#0d1b2d;--panel2:#10243a;--line:#1e3955;--accent:#20c997;--text:#eef6ff;--muted:#91a8bf;--danger:#ff5d73}
+*{box-sizing:border-box}body{margin:0;font-family:Tahoma,Arial,sans-serif;background:radial-gradient(circle at top,#12304a,#07111f 55%);color:var(--text);height:100vh;overflow:hidden}
+button,input{font:inherit}.hidden{display:none!important}
+.auth{height:100vh;display:grid;place-items:center;padding:20px}.auth-card{width:min(420px,100%);background:rgba(13,27,45,.92);border:1px solid var(--line);border-radius:28px;padding:30px;box-shadow:0 25px 80px #0008}
+.logo{text-align:center;font-size:34px;font-weight:900}.sub{text-align:center;color:var(--muted);margin:8px 0 26px}
+.field{margin:12px 0}.field label{display:block;color:#c9d8e8;margin-bottom:7px}.field input{width:100%;padding:14px;border-radius:14px;border:1px solid var(--line);background:#081522;color:white;outline:none}.field input:focus{border-color:var(--accent)}
+.primary{width:100%;padding:14px;border:0;border-radius:14px;background:var(--accent);color:#042219;font-weight:900;cursor:pointer;margin-top:10px}.switch{border:0;background:none;color:#69d9ff;cursor:pointer;margin-top:16px;width:100%}.error{min-height:22px;color:var(--danger);text-align:center;margin-top:10px}
+.app{height:100vh;display:grid;grid-template-columns:330px 1fr}.sidebar{background:rgba(13,27,45,.96);border-left:1px solid var(--line);display:flex;flex-direction:column}.side-head{padding:20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.brand{font-weight:900;font-size:22px}.me{padding:12px 20px;color:var(--muted);border-bottom:1px solid var(--line);font-size:14px}.search{margin:14px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:#081522;color:white;outline:none}.users{overflow:auto;padding:0 8px 12px}.user{width:100%;border:0;background:transparent;color:white;display:flex;gap:12px;align-items:center;padding:13px;border-radius:15px;cursor:pointer;text-align:right}.user:hover,.user.active{background:var(--panel2)}.avatar{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#20c997,#3498db);font-weight:900;flex:none}.uinfo{min-width:0;flex:1}.uname{font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.status{font-size:12px;color:var(--muted);margin-top:4px}.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:#66798a;margin-left:5px}.dot.on{background:#20c997}
+.chat{display:flex;flex-direction:column;min-width:0}.chat-head{height:75px;padding:12px 22px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;background:#0b1a2b}.chat-title{font-weight:900}.chat-status{font-size:12px;color:var(--muted);margin-top:4px}.messages{flex:1;overflow:auto;padding:25px;display:flex;flex-direction:column;gap:8px;background:linear-gradient(#081522aa,#07111fcc)}.empty{margin:auto;text-align:center;color:var(--muted)}.bubble{max-width:min(70%,600px);padding:11px 14px;border-radius:18px;line-height:1.6;word-break:break-word}.mine{align-self:flex-start;background:#075e54;border-bottom-left-radius:5px}.theirs{align-self:flex-end;background:#18304a;border-bottom-right-radius:5px}.time{font-size:10px;color:#b7c8d7;margin-top:4px}.composer{display:flex;gap:10px;padding:14px 18px;background:#0b1a2b;border-top:1px solid var(--line)}.composer input{flex:1;border:1px solid var(--line);background:#081522;color:white;padding:14px;border-radius:16px;outline:none}.send{width:55px;border:0;border-radius:16px;background:var(--accent);cursor:pointer;font-size:20px}.logout{margin:10px 14px 15px;padding:11px;border:1px solid var(--line);background:#081522;color:#ff9aaa;border-radius:12px;cursor:pointer}
+@media(max-width:760px){.app{grid-template-columns:1fr}.sidebar{position:absolute;inset:0 0 0 auto;width:86%;z-index:5;transform:translateX(0);transition:.2s}.sidebar.closed{transform:translateX(105%)}.chat{width:100%}.chat-head{padding:10px 14px}.messages{padding:16px}.bubble{max-width:84%}.menu{display:block!important}}
+.menu{display:none;border:0;background:none;color:white;font-size:25px;cursor:pointer}
+</style>
 </head>
-
 <body>
+<section id="auth" class="auth">
+  <div class="auth-card">
+    <div class="logo">💬 Prime Chat</div>
+    <div class="sub" id="authSub">أنشئ حسابك وابدأ محادثات خاصة</div>
+    <form id="authForm">
+      <div class="field"><label>اسم المستخدم</label><input id="username" autocomplete="username" required minlength="3"></div>
+      <div class="field"><label>كلمة المرور</label><input id="password" type="password" autocomplete="current-password" required minlength="6"></div>
+      <button class="primary" id="authBtn">إنشاء حساب</button>
+    </form>
+    <button class="switch" id="switchBtn">عندي حساب بالفعل — تسجيل الدخول</button>
+    <div class="error" id="authError"></div>
+  </div>
+</section>
 
-<div class="app">
-
-  <!-- القائمة الجانبية -->
-
-  <aside class="sidebar" id="sidebar">
-
-    <div class="logoArea">
-
-      <div class="logo">
-        P
-      </div>
-
-      <div class="logoText">
-        <h1>Prime Chat</h1>
-        <p>تواصل مع الآخرين بسهولة</p>
-      </div>
-
-    </div>
-
-    <div class="search">
-
-      <div class="searchBox">
-
-        <span>⌕</span>
-
-        <input
-          id="search"
-          type="text"
-          placeholder="ابحث عن شخص..."
-          oninput="searchUsers()"
-        >
-
-      </div>
-
-    </div>
-
-    <div class="title">
-      المستخدمون المتصلون
-    </div>
-
-    <div class="users" id="users">
-      <!-- المستخدمون سيظهرون هنا -->
-    </div>
-
+<section id="app" class="app hidden">
+  <aside id="sidebar" class="sidebar">
+    <div class="side-head"><div class="brand">💬 Prime Chat</div></div>
+    <div class="me" id="me"></div>
+    <input class="search" id="search" placeholder="ابحث عن مستخدم...">
+    <div class="users" id="users"></div>
+    <button class="logout" id="logout">تسجيل الخروج</button>
   </aside>
 
-
-  <!-- الشات -->
-
   <main class="chat">
-
-    <header class="chatHeader">
-
-      <button
-        class="icon mobileMenu"
-        onclick="toggleSidebar()"
-      >
-        ☰
-      </button>
-
-      <div
-        class="headerAvatar"
-        id="headerAvatar"
-      >
-        P
+    <header class="chat-head">
+      <button class="menu" id="menu">☰</button>
+      <div class="avatar" id="chatAvatar">?</div>
+      <div>
+        <div class="chat-title" id="chatTitle">اختر شخصًا لبدء المحادثة</div>
+        <div class="chat-status" id="chatStatus"></div>
       </div>
-
-      <div class="chatUser">
-
-        <strong id="chatName">
-          Prime Chat
-        </strong>
-
-        <small id="chatStatus">
-          متصل
-        </small>
-
-      </div>
-
-      <div class="actions">
-
-        <button
-          class="icon"
-          onclick="showMyName()"
-        >
-          👤
-        </button>
-
-      </div>
-
     </header>
-
-
-    <section
-      class="messages"
-      id="messages"
-    >
-
-      <div class="welcome">
-
-        <div class="welcomeIcon">
-          💬
-        </div>
-
-        <h2>
-          أهلاً بيك في Prime Chat
-        </h2>
-
-        <p>
-          اكتب رسالتك وابدأ المحادثة
-        </p>
-
-      </div>
-
-    </section>
-
-
-    <div class="inputArea">
-
-      <div class="input">
-
-        <button
-          class="emoji"
-          onclick="addEmoji()"
-        >
-          😊
-        </button>
-
-        <input
-          id="messageInput"
-          type="text"
-          placeholder="اكتب رسالة..."
-          autocomplete="off"
-        >
-
-        <button
-          class="send"
-          onclick="sendMessage()"
-        >
-          ➤
-        </button>
-
-      </div>
-
+    <div class="messages" id="messages">
+      <div class="empty">اختار مستخدم من القائمة وابدأ الكلام 💬</div>
     </div>
-
+    <form class="composer" id="composer">
+      <input id="messageInput" maxlength="2000" placeholder="اكتب رسالة..." autocomplete="off" disabled>
+      <button class="send" id="send" disabled>➤</button>
+    </form>
   </main>
-
-</div>
-
-
-<!-- Socket.IO -->
+</section>
 
 <script src="/socket.io/socket.io.js"></script>
-
 <script>
+const $=id=>document.getElementById(id);
+let mode="register", token=localStorage.getItem("prime_token"), me=null, selected=null, users=[], socket=null, typingTimer=null;
 
-const socket = io();
+function setAuthMode(){
+  $("authSub").textContent=mode==="register"?"أنشئ حسابك وابدأ محادثات خاصة":"سجّل الدخول إلى حسابك";
+  $("authBtn").textContent=mode==="register"?"إنشاء حساب":"تسجيل الدخول";
+  $("switchBtn").textContent=mode==="register"?"عندي حساب بالفعل — تسجيل الدخول":"ليس لدي حساب — إنشاء حساب";
+  $("authError").textContent="";
+}
+$("switchBtn").onclick=()=>{mode=mode==="register"?"login":"register";setAuthMode()};
 
-let myName = "";
+$("authForm").onsubmit=async e=>{
+  e.preventDefault(); $("authError").textContent="جاري المعالجة...";
+  try{
+    const r=await fetch(mode==="register"?"/api/register":"/api/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({username:$("username").value,password:$("password").value})});
+    const d=await r.json(); if(!r.ok) throw new Error(d.error);
+    token=d.token; localStorage.setItem("prime_token",token); await startApp();
+  }catch(err){$("authError").textContent=err.message}
+};
 
-
-/* تسجيل الاسم */
-
-myName = prompt(
-  "اكتب اسمك للدخول إلى Prime Chat"
-);
-
-if(!myName || !myName.trim()){
-  myName = "مستخدم";
+async function startApp(){
+  try{
+    const r=await fetch("/api/me",{headers:{Authorization:"Bearer "+token}});
+    if(!r.ok) throw 0; me=await r.json();
+    $("auth").classList.add("hidden");$("app").classList.remove("hidden");$("me").textContent="حسابك: "+me.username;
+    connect(); await loadUsers();
+  }catch{localStorage.removeItem("prime_token");token=null}
 }
 
-myName = myName
-  .trim()
-  .slice(0,30);
+function connect(){
+  socket=io({auth:{token}});
+  socket.on("connect_error",()=>{});
+  socket.on("presence",p=>{const u=users.find(x=>x.id===p.userId);if(u){u.online=p.online;if(p.lastSeen)u.lastSeen=p.lastSeen;renderUsers();if(selected?.id===u.id)updateHeader()}})
+  socket.on("privateMessage",m=>{if(selected && (m.from===selected.id||m.to===selected.id)){renderMessage(m);scrollBottom()}});
+  socket.on("typing",p=>{if(selected?.id===p.from)$("chatStatus").textContent=p.username+" يكتب الآن..."});
+  socket.on("stopTyping",p=>{if(selected?.id===p.from)updateHeader()});
+}
 
-
-/* دخول الشات */
-
-socket.emit(
-  "join",
-  myName
-);
-
-
-/* المستخدمون */
-
-socket.on("users", (users) => {
-
-  const box =
-    document.getElementById("users");
-
-  box.innerHTML = "";
-
-  users.forEach(user => {
-
-    const div =
-      document.createElement("div");
-
-    div.className = "user";
-
-    const avatar =
-      document.createElement("div");
-
-    avatar.className = "avatar";
-
-    avatar.textContent =
-      user.name.charAt(0);
-
-    const status =
-      document.createElement("span");
-
-    status.className = "status";
-
-    avatar.appendChild(status);
-
-
-    const info =
-      document.createElement("div");
-
-    info.className = "userInfo";
-
-
-    const name =
-      document.createElement("div");
-
-    name.className = "userName";
-
-    name.textContent =
-      user.name;
-
-
-    const last =
-      document.createElement("div");
-
-    last.className = "last";
-
-    last.textContent =
-      "متصل الآن";
-
-
-    info.appendChild(name);
-
-    info.appendChild(last);
-
-
-    const time =
-      document.createElement("div");
-
-    time.className = "time";
-
-    time.textContent = "●";
-
-
-    div.appendChild(avatar);
-
-    div.appendChild(info);
-
-    div.appendChild(time);
-
-
-    box.appendChild(div);
-
+async function loadUsers(){
+  const r=await fetch("/api/users",{headers:{Authorization:"Bearer "+token}});
+  if(!r.ok) return; users=await r.json(); renderUsers();
+}
+function renderUsers(){
+  const q=$("search").value.trim().toLowerCase();
+  $("users").innerHTML="";
+  users.filter(u=>u.username.toLowerCase().includes(q)).forEach(u=>{
+    const b=document.createElement("button");b.className="user"+(selected?.id===u.id?" active":"");b.onclick=()=>selectUser(u);
+    const av=document.createElement("div");av.className="avatar";av.textContent=u.username[0].toUpperCase();
+    const info=document.createElement("div");info.className="uinfo";
+    const n=document.createElement("div");n.className="uname";n.textContent=u.username;
+    const s=document.createElement("div");s.className="status";s.innerHTML='<span class="dot '+(u.online?"on":"")+'"></span>'+(u.online?"متصل الآن":"غير متصل");
+    info.append(n,s);b.append(av,info);$("users").appendChild(b);
   });
-
-});
-
-
-/* استقبال رسالة */
-
-socket.on("message", (message) => {
-
-  const messages =
-    document.getElementById("messages");
-
-  const welcome =
-    document.querySelector(".welcome");
-
-  if(welcome){
-    welcome.remove();
-  }
-
-
-  const div =
-    document.createElement("div");
-
-  div.className =
-    "message " +
-    (
-      message.senderId === socket.id
-      ? "me"
-      : "other"
-    );
-
-
-  const bubble =
-    document.createElement("div");
-
-  bubble.className = "bubble";
-
-
-  if(message.senderId === socket.id){
-
-    bubble.textContent =
-      message.text;
-
-  }else{
-
-    bubble.textContent =
-      message.senderName +
-      ": " +
-      message.text;
-
-  }
-
-
-  const time =
-    document.createElement("div");
-
-  time.className = "msgTime";
-
-  time.textContent =
-    new Date(message.time)
-      .toLocaleTimeString(
-        "ar-EG",
-        {
-          hour:"2-digit",
-          minute:"2-digit"
-        }
-      );
-
-
-  div.appendChild(bubble);
-
-  div.appendChild(time);
-
-  messages.appendChild(div);
-
-
-  messages.scrollTop =
-    messages.scrollHeight;
-
-});
-
-
-/* إرسال */
-
-function sendMessage(){
-
-  const input =
-    document.getElementById(
-      "messageInput"
-    );
-
-  const text =
-    input.value.trim();
-
-  if(!text) return;
-
-
-  socket.emit(
-    "sendMessage",
-    {
-      text:text
-    }
-  );
-
-
-  input.value = "";
-
 }
+$("search").oninput=renderUsers;
 
-
-/* Enter */
-
-document
-  .getElementById("messageInput")
-  .addEventListener(
-    "keydown",
-    function(event){
-
-      if(event.key === "Enter"){
-        sendMessage();
-      }
-
-    }
-  );
-
-
-/* Typing */
-
-let typingTimer;
-
-document
-  .getElementById("messageInput")
-  .addEventListener(
-    "input",
-    function(){
-
-      socket.emit("typing");
-
-      clearTimeout(typingTimer);
-
-      typingTimer =
-        setTimeout(
-          function(){
-
-            socket.emit(
-              "stopTyping"
-            );
-
-          },
-          800
-        );
-
-    }
-  );
-
-
-socket.on("typing", (data) => {
-
-  document
-    .getElementById("chatStatus")
-    .textContent =
-      data.name +
-      " يكتب الآن...";
-
-});
-
-
-socket.on("stopTyping", () => {
-
-  document
-    .getElementById("chatStatus")
-    .textContent =
-      "● متصل الآن";
-
-});
-
-
-/* البحث */
-
-function searchUsers(){
-
-  const value =
-    document
-      .getElementById("search")
-      .value
-      .toLowerCase();
-
-
-  document
-    .querySelectorAll(".user")
-    .forEach(user => {
-
-      const name =
-        user
-          .querySelector(".userName")
-          .textContent
-          .toLowerCase();
-
-
-      user.style.display =
-        name.includes(value)
-        ? "flex"
-        : "none";
-
-    });
-
+async function selectUser(u){
+  selected=u; renderUsers(); updateHeader(); $("messages").innerHTML="";
+  $("messageInput").disabled=false;$("send").disabled=false;$("messageInput").focus();
+  try{
+    const r=await fetch("/api/messages/"+u.id,{headers:{Authorization:"Bearer "+token}});
+    const data=await r.json(); data.forEach(renderMessage);scrollBottom();
+  }catch{}
+  if(innerWidth<=760)$("sidebar").classList.add("closed");
 }
-
-
-/* Emoji */
-
-function addEmoji(){
-
-  const input =
-    document.getElementById(
-      "messageInput"
-    );
-
-  input.value += " 😊";
-
-  input.focus();
-
+function updateHeader(){
+  if(!selected)return;
+  $("chatAvatar").textContent=selected.username[0].toUpperCase();
+  $("chatTitle").textContent=selected.username;
+  $("chatStatus").textContent=selected.online?"متصل الآن":"غير متصل";
 }
-
-
-/* القائمة في الموبايل */
-
-function toggleSidebar(){
-
-  document
-    .getElementById("sidebar")
-    .classList.toggle("show");
-
+function renderMessage(m){
+  const d=document.createElement("div");d.className="bubble "+(m.from===me.id?"mine":"theirs");
+  const t=document.createElement("div");t.textContent=m.text;
+  const tm=document.createElement("div");tm.className="time";tm.textContent=new Date(m.createdAt).toLocaleTimeString("ar-EG",{hour:"2-digit",minute:"2-digit"});
+  d.append(t,tm);$("messages").appendChild(d);
 }
+function scrollBottom(){requestAnimationFrame(()=>$("messages").scrollTop=$("messages").scrollHeight)}
+$("composer").onsubmit=e=>{
+  e.preventDefault(); if(!selected||!socket)return;
+  const text=$("messageInput").value.trim();if(!text)return;
+  socket.emit("privateMessage",{to:selected.id,text});$("messageInput").value="";socket.emit("stopTyping",{to:selected.id});$("messageInput").focus();
+};
+$("messageInput").oninput=()=>{
+  if(!selected||!socket)return;
+  socket.emit("typing",{to:selected.id});clearTimeout(typingTimer);
+  typingTimer=setTimeout(()=>socket.emit("stopTyping",{to:selected.id}),900);
+};
+$("logout").onclick=()=>{localStorage.removeItem("prime_token");location.reload()};
+$("menu").onclick=()=>$("sidebar").classList.toggle("closed");
 
-
-/* الاسم */
-
-function showMyName(){
-
-  alert(
-    "أنت داخل Prime Chat باسم:\n\n" +
-    myName
-  );
-
-}
-
+setAuthMode();
+if(token)startApp();
 </script>
-
 </body>
 </html>
