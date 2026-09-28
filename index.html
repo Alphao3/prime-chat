@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Prime Chat</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #070b14;
+      --panel: #0d1422;
+      --panel2: #111a2b;
+      --border: rgba(255,255,255,.08);
+      --text: #ffffff;
+      --muted: #8994a8;
+      --blue: #3b82f6;
+      --purple: #7c3aed;
+      --green: #22c55e;
+    }
+
+    body {
+      font-family: Tahoma, Arial, sans-serif;
+      background:
+        radial-gradient(
+          circle at 90% 0%,
+          #1b315d 0%,
+          transparent 30%
+        ),
+        radial-gradient(
+          circle at 0% 100%,
+          #22134b 0%,
+          transparent 30%
+        ),
+        var(--bg);
+
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    button,
+    input {
+      font-family: inherit;
+    }
+
+    .app {
+      height: 100vh;
+      padding: 16px;
+      display: flex;
+      gap: 15px;
+    }
+
+    /* SIDEBAR */
+
+    .sidebar {
+      width: 330px;
+      min-width: 330px;
+      height: 100%;
+
+      background: rgba(13,20,34,.9);
+
+      border: 1px solid var(--border);
+      border-radius: 24px;
+
+      display: flex;
+      flex-direction: column;
+
+      overflow: hidden;
+
+      backdrop-filter: blur(20px);
+    }
+
+    .logoArea {
+      padding: 20px;
+
+      border-bottom: 1px solid var(--border);
+
+      display: flex;
+      align-items: center;
+
+      gap: 12px;
+    }
+
+    .logo {
+      width: 50px;
+      height: 50px;
+
+      border-radius: 16px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      font-size: 24px;
+      font-weight: bold;
+
+      background:
+        linear-gradient(
+          135deg,
+          var(--blue),
+          var(--purple)
+        );
+
+      box-shadow:
+        0 10px 30px rgba(59,130,246,.3);
+    }
+
+    .logoText h1 {
+      font-size: 20px;
+    }
+
+    .logoText p {
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 4px;
+    }
+
+    .search {
+      padding: 15px;
+    }
+
+    .searchBox {
+      height: 45px;
+
+      border-radius: 14px;
+
+      background: #111827;
+
+      border: 1px solid var(--border);
+
+      display: flex;
+      align-items: center;
+
+      padding: 0 13px;
+
+      gap: 9px;
+    }
+
+    .searchBox span {
+      color: #718096;
+    }
+
+    .searchBox input {
+      width: 100%;
+
+      background: none;
+      border: none;
+      outline: none;
+
+      color: white;
+
+      font-size: 13px;
+    }
+
+    .searchBox input::placeholder {
+      color: #667085;
+    }
+
+    .title {
+      color: #68758b;
+      font-size: 11px;
+      padding: 0 18px 8px;
+    }
+
+    .users {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0 9px 10px;
+    }
+
+    .user {
+      padding: 11px;
+
+      display: flex;
+      align-items: center;
+
+      gap: 11px;
+
+      border-radius: 15px;
+
+      cursor: pointer;
+
+      transition: .2s;
+
+      margin-bottom: 3px;
+    }
+
+    .user:hover {
+      background: rgba(255,255,255,.04);
+    }
+
+    .user.active {
+      background:
+        linear-gradient(
+          135deg,
+          rgba(59,130,246,.2),
+          rgba(124,58,237,.12)
+        );
+    }
+
+    .avatar {
+      width: 47px;
+      height: 47px;
+      min-width: 47px;
+
+      border-radius: 50%;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background:
+        linear-gradient(
+          135deg,
+          #2563eb,
+          #7c3aed
+        );
+
+      font-weight: bold;
+
+      position: relative;
+    }
+
+    .status {
+      position: absolute;
+
+      width: 11px;
+      height: 11px;
+
+      background: var(--green);
+
+      border: 2px solid #111827;
+
+      border-radius: 50%;
+
+      bottom: 0;
+      left: 0;
+    }
+
+    .userInfo {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .userName {
+      font-size: 13px;
+      font-weight: bold;
+    }
+
+    .last {
+      color: #69768b;
+
+      font-size: 11px;
+
+      margin-top: 5px;
+
+      white-space: nowrap;
+
+      overflow: hidden;
+
+      text-overflow: ellipsis;
+    }
+
+    .time {
+      color: #68758b;
+      font-size: 9px;
+    }
+
+    /* CHAT */
+
+    .chat {
+      flex: 1;
+
+      min-width: 0;
+
+      height: 100%;
+
+      background: rgba(9,14,25,.9);
+
+      border: 1px solid var(--border);
+
+      border-radius: 24px;
+
+      display: flex;
+
+      flex-direction: column;
+
+      overflow: hidden;
+
+      backdrop-filter: blur(20px);
+    }
+
+    .chatHeader {
+      min-height: 76px;
+
+      padding: 0 20px;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 12px;
+
+      border-bottom: 1px solid var(--border);
+    }
+
+    .headerAvatar {
+      width: 45px;
+      height: 45px;
+
+      border-radius: 50%;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      background:
+        linear-gradient(
+          135deg,
+          #2563eb,
+          #7c3aed
+        );
+
+      font-weight: bold;
+    }
+
+    .chatUser {
+      flex: 1;
+    }
+
+    .chatUser strong {
+      font-size: 14px;
+    }
+
+    .chatUser small {
+      display: block;
+
+      color: var(--green);
+
+      font-size: 10px;
+
+      margin-top: 5px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 7px;
+    }
+
+    .icon {
+      width: 40px;
+      height: 40px;
+
+      border: none;
+
+      border-radius: 12px;
+
+      color: white;
+
+      background: #121b2c;
+
+      cursor: pointer;
+
+      font-size: 16px;
+
+      transition: .2s;
+    }
+
+    .icon:hover {
+      background: #1d2a42;
+
+      transform: translateY(-1px);
+    }
+
+    /* MESSAGES */
+
+    .messages {
+      flex: 1;
+
+      overflow-y: auto;
+
+      padding: 25px;
+
+      display: flex;
+
+      flex-direction: column;
+
+      gap: 12px;
+    }
+
+    .welcome {
+      margin: auto;
+
+      text-align: center;
+
+      color: #6f7c91;
+    }
+
+    .welcomeIcon {
+      width: 80px;
+      height: 80px;
+
+      margin: auto auto 15px;
+
+      border-radius: 25px;
+
+      display: flex;
+
+      align-items: center;
+      justify-content: center;
+
+      font-size: 35px;
+
+      background: rgba(255,255,255,.04);
+    }
+
+    .welcome h2 {
+      color: white;
+
+      font-size: 19px;
+
+      margin-bottom: 8px;
+    }
+
+    .welcome p {
+      font-size: 12px;
+    }
+
+    .message {
+      max-width: 70%;
+
+      display: flex;
+
+      flex-direction: column;
+    }
+
+    .message.me {
+      align-self: flex-start;
+      align-items: flex-start;
+    }
+
+    .message.other {
+      align-self: flex-end;
+      align-items: flex-end;
+    }
+
+    .bubble {
+      padding: 11px 15px;
+
+      border-radius: 18px;
+
+      font-size: 13px;
+
+      line-height: 1.7;
+
+      word-break: break-word;
+    }
+
+    .me .bubble {
+      background:
+        linear-gradient(
+          135deg,
+          #2563eb,
+          #4f46e5
+        );
+
+      border-bottom-left-radius: 5px;
+    }
+
+    .other .bubble {
+      background: #151e30;
+
+      border: 1px solid var(--border);
+
+      border-bottom-right-radius: 5px;
+    }
+
+    .msgTime {
+      color: #657186;
+
+      font-size: 9px;
+
+      margin-top: 4px;
+
+      padding: 0 5px;
+    }
+
+    /* INPUT */
+
+    .inputArea {
+      padding: 14px 17px;
+
+      border-top: 1px solid var(--border);
+
+      background: rgba(8,12,22,.7);
+    }
+
+    .input {
+      min-height: 56px;
+
+      background: #111827;
+
+      border: 1px solid var(--border);
+
+      border-radius: 17px;
+
+      display: flex;
+
+      align-items: center;
+
+      gap: 5px;
+
+      padding: 6px;
+    }
+
+    .input input {
+      flex: 1;
+
+      border: none;
+
+      outline: none;
+
+      background: none;
+
+      color: white;
+
+      padding: 10px;
+
+      font-size: 13px;
+    }
+
+    .input input::placeholder {
+      color: #657186;
+    }
+
+    .emoji {
+      width: 42px;
+      height: 42px;
+
+      border: none;
+
+      background: none;
+
+      color: #8793a7;
+
+      cursor: pointer;
+
+      font-size: 19px;
+    }
+
+    .send {
+      width: 44px;
+      height: 44px;
+
+      border: none;
+
+      border-radius: 13px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #2563eb,
+          #7c3aed
+        );
+
+      color: white;
+
+      font-size: 18px;
+
+      cursor: pointer;
+
+      transition: .2s;
+    }
+
+    .send:hover {
+      transform: scale(1.05);
+    }
+
+    /* MOBILE */
+
+    .mobileMenu {
+      display: none;
+    }
+
+    @media(max-width:800px) {
+
+      .app {
+        padding: 0;
+      }
+
+      .sidebar {
+        position: fixed;
+
+        z-index: 50;
+
+        top: 0;
+
+        right: -350px;
+
+        height: 100vh;
+
+        border-radius: 0;
+
+        transition: .3s;
+      }
+
+      .sidebar.show {
+        right: 0;
+      }
+
+      .chat {
+        border-radius: 0;
+      }
+
+      .mobileMenu {
+        display: block;
+      }
+
+      .message {
+        max-width: 85%;
+      }
+    }
+
+    ::-webkit-scrollbar {
+      width: 5px;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #29354a;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <!-- القائمة الجانبية -->
+
+  <aside class="sidebar" id="sidebar">
+
+    <div class="logoArea">
+
+      <div class="logo">
+        P
+      </div>
+
+      <div class="logoText">
+        <h1>Prime Chat</h1>
+        <p>تواصل مع الآخرين بسهولة</p>
+      </div>
+
+    </div>
+
+    <div class="search">
+
+      <div class="searchBox">
+
+        <span>⌕</span>
+
+        <input
+          id="search"
+          type="text"
+          placeholder="ابحث عن شخص..."
+          oninput="searchUsers()"
+        >
+
+      </div>
+
+    </div>
+
+    <div class="title">
+      المستخدمون المتصلون
+    </div>
+
+    <div class="users" id="users">
+      <!-- المستخدمون سيظهرون هنا -->
+    </div>
+
+  </aside>
+
+
+  <!-- الشات -->
+
+  <main class="chat">
+
+    <header class="chatHeader">
+
+      <button
+        class="icon mobileMenu"
+        onclick="toggleSidebar()"
+      >
+        ☰
+      </button>
+
+      <div
+        class="headerAvatar"
+        id="headerAvatar"
+      >
+        P
+      </div>
+
+      <div class="chatUser">
+
+        <strong id="chatName">
+          Prime Chat
+        </strong>
+
+        <small id="chatStatus">
+          متصل
+        </small>
+
+      </div>
+
+      <div class="actions">
+
+        <button
+          class="icon"
+          onclick="showMyName()"
+        >
+          👤
+        </button>
+
+      </div>
+
+    </header>
+
+
+    <section
+      class="messages"
+      id="messages"
+    >
+
+      <div class="welcome">
+
+        <div class="welcomeIcon">
+          💬
+        </div>
+
+        <h2>
+          أهلاً بيك في Prime Chat
+        </h2>
+
+        <p>
+          اكتب رسالتك وابدأ المحادثة
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <div class="inputArea">
+
+      <div class="input">
+
+        <button
+          class="emoji"
+          onclick="addEmoji()"
+        >
+          😊
+        </button>
+
+        <input
+          id="messageInput"
+          type="text"
+          placeholder="اكتب رسالة..."
+          autocomplete="off"
+        >
+
+        <button
+          class="send"
+          onclick="sendMessage()"
+        >
+          ➤
+        </button>
+
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+<!-- Socket.IO -->
+
+<script src="/socket.io/socket.io.js"></script>
+
+<script>
+
+const socket = io();
+
+let myName = "";
+
+
+/* تسجيل الاسم */
+
+myName = prompt(
+  "اكتب اسمك للدخول إلى Prime Chat"
+);
+
+if(!myName || !myName.trim()){
+  myName = "مستخدم";
+}
+
+myName = myName
+  .trim()
+  .slice(0,30);
+
+
+/* دخول الشات */
+
+socket.emit(
+  "join",
+  myName
+);
+
+
+/* المستخدمون */
+
+socket.on("users", (users) => {
+
+  const box =
+    document.getElementById("users");
+
+  box.innerHTML = "";
+
+  users.forEach(user => {
+
+    const div =
+      document.createElement("div");
+
+    div.className = "user";
+
+    const avatar =
+      document.createElement("div");
+
+    avatar.className = "avatar";
+
+    avatar.textContent =
+      user.name.charAt(0);
+
+    const status =
+      document.createElement("span");
+
+    status.className = "status";
+
+    avatar.appendChild(status);
+
+
+    const info =
+      document.createElement("div");
+
+    info.className = "userInfo";
+
+
+    const name =
+      document.createElement("div");
+
+    name.className = "userName";
+
+    name.textContent =
+      user.name;
+
+
+    const last =
+      document.createElement("div");
+
+    last.className = "last";
+
+    last.textContent =
+      "متصل الآن";
+
+
+    info.appendChild(name);
+
+    info.appendChild(last);
+
+
+    const time =
+      document.createElement("div");
+
+    time.className = "time";
+
+    time.textContent = "●";
+
+
+    div.appendChild(avatar);
+
+    div.appendChild(info);
+
+    div.appendChild(time);
+
+
+    box.appendChild(div);
+
+  });
+
+});
+
+
+/* استقبال رسالة */
+
+socket.on("message", (message) => {
+
+  const messages =
+    document.getElementById("messages");
+
+  const welcome =
+    document.querySelector(".welcome");
+
+  if(welcome){
+    welcome.remove();
+  }
+
+
+  const div =
+    document.createElement("div");
+
+  div.className =
+    "message " +
+    (
+      message.senderId === socket.id
+      ? "me"
+      : "other"
+    );
+
+
+  const bubble =
+    document.createElement("div");
+
+  bubble.className = "bubble";
+
+
+  if(message.senderId === socket.id){
+
+    bubble.textContent =
+      message.text;
+
+  }else{
+
+    bubble.textContent =
+      message.senderName +
+      ": " +
+      message.text;
+
+  }
+
+
+  const time =
+    document.createElement("div");
+
+  time.className = "msgTime";
+
+  time.textContent =
+    new Date(message.time)
+      .toLocaleTimeString(
+        "ar-EG",
+        {
+          hour:"2-digit",
+          minute:"2-digit"
+        }
+      );
+
+
+  div.appendChild(bubble);
+
+  div.appendChild(time);
+
+  messages.appendChild(div);
+
+
+  messages.scrollTop =
+    messages.scrollHeight;
+
+});
+
+
+/* إرسال */
+
+function sendMessage(){
+
+  const input =
+    document.getElementById(
+      "messageInput"
+    );
+
+  const text =
+    input.value.trim();
+
+  if(!text) return;
+
+
+  socket.emit(
+    "sendMessage",
+    {
+      text:text
+    }
+  );
+
+
+  input.value = "";
+
+}
+
+
+/* Enter */
+
+document
+  .getElementById("messageInput")
+  .addEventListener(
+    "keydown",
+    function(event){
+
+      if(event.key === "Enter"){
+        sendMessage();
+      }
+
+    }
+  );
+
+
+/* Typing */
+
+let typingTimer;
+
+document
+  .getElementById("messageInput")
+  .addEventListener(
+    "input",
+    function(){
+
+      socket.emit("typing");
+
+      clearTimeout(typingTimer);
+
+      typingTimer =
+        setTimeout(
+          function(){
+
+            socket.emit(
+              "stopTyping"
+            );
+
+          },
+          800
+        );
+
+    }
+  );
+
+
+socket.on("typing", (data) => {
+
+  document
+    .getElementById("chatStatus")
+    .textContent =
+      data.name +
+      " يكتب الآن...";
+
+});
+
+
+socket.on("stopTyping", () => {
+
+  document
+    .getElementById("chatStatus")
+    .textContent =
+      "● متصل الآن";
+
+});
+
+
+/* البحث */
+
+function searchUsers(){
+
+  const value =
+    document
+      .getElementById("search")
+      .value
+      .toLowerCase();
+
+
+  document
+    .querySelectorAll(".user")
+    .forEach(user => {
+
+      const name =
+        user
+          .querySelector(".userName")
+          .textContent
+          .toLowerCase();
+
+
+      user.style.display =
+        name.includes(value)
+        ? "flex"
+        : "none";
+
+    });
+
+}
+
+
+/* Emoji */
+
+function addEmoji(){
+
+  const input =
+    document.getElementById(
+      "messageInput"
+    );
+
+  input.value += " 😊";
+
+  input.focus();
+
+}
+
+
+/* القائمة في الموبايل */
+
+function toggleSidebar(){
+
+  document
+    .getElementById("sidebar")
+    .classList.toggle("show");
+
+}
+
+
+/* الاسم */
+
+function showMyName(){
+
+  alert(
+    "أنت داخل Prime Chat باسم:\n\n" +
+    myName
+  );
+
+}
+
+</script>
+
+</body>
+</html>
